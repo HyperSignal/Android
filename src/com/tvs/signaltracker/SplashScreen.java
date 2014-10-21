@@ -71,11 +71,11 @@ public class SplashScreen extends Activity {
             		TextView msglbl = (TextView) findViewById(R.id.splash_screen_msg);
             		msglbl.setText(SplashScreen.this.getResources().getString(R.string.downloadingops));
             		msglbl.setTextSize(20);
-            		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-            			new DownLoadWorker().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this);
-            		} else {
+            		//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+            		//	new DownLoadWorker().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this);
+            		//} else {
             			new DownLoadWorker().execute(this);
-            		}
+            		//}
             		break;
             	case 2:
   	            	if(!CommonHandler.ServiceRunning)	{
@@ -94,11 +94,11 @@ public class SplashScreen extends Activity {
 
 		CommonHandler.InitDB(this);		
 		CommonHandler.InitOperatorData(this);	/*	Inicializar Dados da Operadora	*/
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			new LoadWorker().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this);
-		} else {
+		//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+		//	new LoadWorker().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this);
+		//} else {
 			new LoadWorker().execute(this);
-		}
+		//}
     }
 
     private static class LoadWorker extends AsyncTask<Object, Object, Object>	{

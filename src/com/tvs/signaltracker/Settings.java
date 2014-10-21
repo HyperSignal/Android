@@ -136,18 +136,18 @@ public class Settings extends Activity {
 					towersent = false;
 					signalsent = false;
 					if(CommonHandler.Signals != null)
-						if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-							sst = new SendSignalTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Signals);
-						} else {
+						//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+						//	sst = new SendSignalTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Signals);
+						//} else {
 							sst = new SendSignalTask().execute(CommonHandler.Signals);
-						}
+						//}
 					
 					if(CommonHandler.Towers != null)
-						if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-							stt = new SendTowerTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Towers);
-						} else {
+						//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+						//	stt = new SendTowerTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Towers);
+						//} else {
 							stt = new SendTowerTask().execute(CommonHandler.Towers);
-						}
+						//}
 
 				}
 			});
@@ -158,11 +158,11 @@ public class Settings extends Activity {
 				public void onClick(View v) {
 					downloadoperator.setText(getResources().getString(R.string.downloading));
 					downloadoperator.setClickable(false);
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						downloadops = new DownloadOpsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Signals);
-					} else {
+					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					//	downloadops = new DownloadOpsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Signals);
+					//} else {
 						downloadops = new DownloadOpsTask().execute(CommonHandler.Signals);
-					}
+					//}
 				}
 			});
 			facebookLogin.setOnClickListener(new View.OnClickListener() {

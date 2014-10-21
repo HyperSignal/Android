@@ -249,11 +249,11 @@ public class MainScreen  extends FragmentActivity {
 	            map.getUiSettings().setZoomGesturesEnabled(!controlLocked);
 	            map.getUiSettings().setZoomControlsEnabled(false);
 	            map.getUiSettings().setCompassEnabled(false);
-				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					LoadToMapTask = new LoadToMap().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				} else {
+				//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				//	LoadToMapTask = new LoadToMap().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				//} else {
 		            LoadToMapTask = new LoadToMap().execute();
-				}
+				//}
 	            TileProvider tileProvider = new UrlTileProvider(256, 256) {
 	                @Override
 	                public synchronized URL getTileUrl(int x, int y, int zoom) {

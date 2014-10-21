@@ -276,11 +276,10 @@ public class CommonHandler {
 				if(sig == null)
 					Log.i("ST","NULL ERROR");
 				if(sig.state == 0)	{
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						new HSAPI.SendSignal().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, sig);
-					} else {
+					//	new HSAPI.SendSignal().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, sig);
+					//} else {
 						new HSAPI.SendSignal().execute(sig);
-					}
+					//}
 					count++;
 					rawcount++;
 				}else if (Signals.get(i).state == 1)
@@ -299,11 +298,11 @@ public class CommonHandler {
 			for(int i=0;i<Towers.size();i++)	{
 				TowerObject tower = Towers.get(i);
 				if(tower.state == 0)	{
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tower);
-					} else {
+					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					//	new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tower);
+					//} else {
 						new HSAPI.SendTower().execute(tower);
-					}
+					//}
 					
 					count++;
 					rawcount++;
@@ -343,11 +342,11 @@ public class CommonHandler {
 			}
 			if(ServiceMode < 3)	{
 				if((WifiSend & WifiConnected) | !WifiSend)	{
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						new HSAPI.SendSignal().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
-					} else {
+					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					//	new HSAPI.SendSignal().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
+					//} else {
 						new HSAPI.SendSignal().execute(tmp);
-					}
+					//}
 				}
 			}
 			if(add)	{
@@ -397,17 +396,17 @@ public class CommonHandler {
 			if(ServiceMode < 3)	{
 				//HSAPI.AddTower(lat,lon,Operator);
 				if((WifiSend & WifiConnected) | !WifiSend)	{
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
-					} else {
+					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					//	new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
+					//} else {
 						new HSAPI.SendTower().execute(tmp);
-					}
+					//}
 				}else if(!WifiSend){
-					if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
-					} else {
+					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					//	new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
+					//} else {
 						new HSAPI.SendTower().execute(tmp);
-					}
+					//}
 				}
 			}
 			if(add)	{
