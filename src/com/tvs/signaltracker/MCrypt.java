@@ -26,6 +26,12 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.util.Log;
+
 public class MCrypt {
 
 	private String iv = "***REMOVED***";
@@ -35,6 +41,18 @@ public class MCrypt {
 	private String SecretKey = "***REMOVED***";
 
 	public MCrypt() {
+		
+		try {
+		    ApplicationInfo ai = SignalTracker.getContext().getPackageManager().getApplicationInfo(SignalTracker.getContext().getPackageName(), PackageManager.GET_META_DATA);
+		    Bundle bundle = ai.metaData;
+		    iv = bundle.getString("ODATA_IV");
+		    SecretKey = bundle.getString("ODATA_KEY");
+		} catch (NameNotFoundException e) {
+		    Log.e("MCrypt::MCrypt", "Failed to load meta-data, NameNotFound: " + e.getMessage());
+		} catch (NullPointerException e) {
+		    Log.e("MCrypt::MCrypt", "Failed to load meta-data, NullPointer: " + e.getMessage());         
+		}
+		
 		ivspec = new IvParameterSpec(iv.getBytes());
 		keyspec = new SecretKeySpec(SecretKey.getBytes(), "AES");
 

@@ -23,6 +23,8 @@ package com.tvs.signaltracker;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
+
+import android.content.Context;
 import android.util.Base64;
 
 public class TheUpCrypter {

@@ -28,8 +28,6 @@ import com.facebook.model.GraphLocation;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
