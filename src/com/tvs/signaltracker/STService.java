@@ -17,9 +17,21 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Locale;
@@ -208,12 +220,11 @@ public class STService extends Service{
 	
 	private void StartWorks()	{
 		InitForeground();
-		if(!CommonHandler.Configured | CommonHandler.dbman == null | CommonHandler.Signals == null | CommonHandler.Towers == null)	{
+		if(!CommonHandler.Configured | CommonHandler.dbman == null | CommonHandler.Signals == null )	{
 			CommonHandler.Configured = false;
 			try{CommonHandler.dbman.Close();}catch(Exception e){};
 			CommonHandler.dbman = null;
 			CommonHandler.Signals = null;
-			CommonHandler.Towers = null;
 			CommonHandler.ServiceRunning = false;
 			CommonHandler.ServiceMode = 0;
 			CommonHandler.KillService = true;
@@ -241,12 +252,10 @@ public class STService extends Service{
 		}
 	}
     private void showServiceNotification() {
-    	int signals = 0, towers = 0;
+    	int signals = 0;
     	if(CommonHandler.Signals != null)
     		signals = CommonHandler.Signals.size();
-    	if(CommonHandler.Towers != null)
-    		towers = CommonHandler.Towers.size();
-    	String bartext = String.format(Locale.getDefault(), getResources().getString(R.string.barnotice) ,(signals*CommonHandler.MinimumDistance)/1000f, towers, CommonHandler.NumConSattelites, CommonHandler.NumSattelites);
+    	String bartext = String.format(Locale.getDefault(), getResources().getString(R.string.barnotice) ,(signals*CommonHandler.MinimumDistance)/1000f, CommonHandler.NumConSattelites, CommonHandler.NumSattelites);
     	if(mBuilder == null)	{
     		String msg	= "";
     		if( CommonHandler.ServiceMode == 1 || CommonHandler.ServiceMode == 3)
@@ -319,8 +328,7 @@ public class STService extends Service{
 				int lac = tower.getLac();
 				int mcc = Integer.parseInt(networkOperator.substring(0, 3));
 				int mnc = Integer.parseInt(networkOperator.substring(3));
-				int[] data	=	{ cid,lac,mcc,mnc };
-				new Utils.TowerFetchTask().execute(STService.this.getResources().getString(R.string.opencell_id), data);
+				//TODO: Add MCC,MNC,LAC,CID to CommonHandler to Send through API
 			}
 			if(CommonHandler.ServiceMode != 2 && CommonHandler.ServiceMode != 4)
 				UpdateData(false);

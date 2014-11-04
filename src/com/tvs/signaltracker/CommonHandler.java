@@ -17,6 +17,20 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -60,7 +74,6 @@ public class CommonHandler {
 	
 	/*	Listas	*/
 	public static List<SignalObject>	Signals;
-	public static List<TowerObject>		Towers;
 	
 	/*	Callbacks	*/
 	private static List<STCallBack>		SignalCallbacks;
@@ -97,8 +110,6 @@ public class CommonHandler {
 	public static void InitLists()	{
 		if(Signals == null)
 			Signals = new ArrayList<SignalObject>();
-		if(Towers == null)
-			Towers = new ArrayList<TowerObject>();
 	}
 	
 	/**
@@ -120,7 +131,6 @@ public class CommonHandler {
 			Log.i("SignalTracker::LoadLists","Cleaning sent towers.");
 			dbman.CleanDoneTowers();
 			Signals = dbman.getSignals();
-			Towers = dbman.getTowers();
 		}else
 			Log.e("SignalTracker::LoadLists","DatabaseManager is null! ");
 	}
@@ -292,28 +302,6 @@ public class CommonHandler {
 				Log.i("SignalTracker::DoResend","Reseding "+rawcount+" signals. ("+count+")");
 			
 			count = 0;
-			rawcount = 0;
-			for(int i=0;i<Towers.size();i++)	{
-				TowerObject tower = Towers.get(i);
-				if(tower.state == 0)	{
-					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					//	new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tower);
-					//} else {
-						new HSAPI.SendTower().execute(tower);
-					//}
-					
-					count++;
-					rawcount++;
-				}else if (Towers.get(i).state == 1)
-					count++;
-				else if (Towers.get(i).state == 2 & CommonHandler.dbman != null)
-					CommonHandler.dbman.UpdateTower(Towers.get(i).latitude,Towers.get(i).longitude, (short) 2);
-					
-				if(count == 10)
-					break;
-			}
-			if(rawcount > 0)
-				Log.i("SignalTracker::DoResend","Resending "+rawcount+" towers. ("+count+")");
 		}
 	}
 	@SuppressLint("NewApi")
@@ -371,65 +359,6 @@ public class CommonHandler {
 			}
 		}else
 			Log.e("SignalTracker::AddSignal","The Signal List is null!");
-	}
-	
-	@SuppressLint("NewApi")
-	/**
-	 * Adds a Tower to the database, and start the task to send
-	 * it, if not in OnlyWireless Mode. This will execute the 
-	 * callbacks in tower callback list.
-	 * @param lat	Latitude of Tower
-	 * @param lon	Longitude of Tower
-	 */
-	public static void AddTower(double lat, double lon)	{
-		if(Towers != null)	{
-			TowerObject tmp	=	new TowerObject(lat,lon,MCC,MNC);
-			boolean add = true;
-			for(int i=0; i<Towers.size();i++)	{
-				if(tmp.distance(Towers.get(i)) < MinimumDistance-(MinimumDistance/5f))	{
-					add = false;
-					break;
-				}
-			}
-			if(ServiceMode < 3)	{
-				//HSAPI.AddTower(lat,lon,Operator);
-				if((WifiSend & WifiConnected) | !WifiSend)	{
-					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					//	new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
-					//} else {
-						new HSAPI.SendTower().execute(tmp);
-					//}
-				}else if(!WifiSend){
-					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					//	new HSAPI.SendTower().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tmp);
-					//} else {
-						new HSAPI.SendTower().execute(tmp);
-					//}
-				}
-			}
-			if(add)	{
-				SentTowers += 1;
-				dbman.setPreference("senttowers", Integer.toString(SentTowers));
-				Towers.add(tmp);
-				dbman.insertTower(lat, lon);
-				if(TowerCallbacks != null)	{
-					boolean[]	removeItens = new boolean[TowerCallbacks.size()];
-					for(int i=0;i<TowerCallbacks.size();i++)	{
-						try{
-							TowerCallbacks.get(i).Call(tmp);
-							removeItens[i] = false;
-						}catch(Exception e)	{
-							Log.i("SignalTracker::AddTower","Fail to process callback("+i+"): "+e.getMessage());
-							removeItens[i] = true;
-						}
-					}
-					for(int i=removeItens.length-1;i>=0;i--)	
-						if(removeItens[i] == true)
-							DelTowerCallback(i);
-				}
-			}		
-		}else
-			Log.e("SignalTracker::AddTower","List of towers is null!");
 	}
 	
 	/**

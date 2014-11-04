@@ -17,6 +17,20 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -97,45 +111,6 @@ public class HSAPI {
 		@Override
 		protected Long doInBackground(String... params) {
 			DownloadOperatorList();
-			return null;
-		}
-	}
-	/**
-	 * Adds info about a tower in Database
-	 * @param	tower	Tower data to send
-	 * @see TowerObject
-	 * @see AsyncTask
-	 */
-	public static class SendTower extends AsyncTask<TowerObject, Integer, Long> {
-		TowerObject tower;
-		
-		@Override
-		protected Long doInBackground(TowerObject... params) {
-			try {
-				tower = params[0];
-				tower.state = 1;
-				String jsondata = "{\"metodo\":\"addtorre\",\"op\":\""+CommonHandler.Operator+"\",\"lat\":"+String.valueOf(tower.latitude)+",\"lon\":"+String.valueOf(tower.longitude)+", \"uid\":\""+CommonHandler.FacebookUID+"\",\"mcc\":"+tower.mcc+",\"mnc\":"+tower.mnc+"}";
-				jsondata = TheUpCrypter.GenOData(jsondata);
-				JSONObject out = Utils.getODataJSONfromURL(baseURL+"?odata="+URLEncoder.encode(jsondata, "UTF-8"));
-				if(out != null)	{
-					if(out.getString("result").indexOf("OK") > -1)	{
-						tower.state = 2;
-						CommonHandler.dbman.deleteTower(tower.id);
-					}else{
-						Log.e("SignalTracker::SendTower","Error: "+out.getString("result"));
-						tower.state = 0;
-					}
-				}else{
-					tower.state = 0;
-					Log.e("SignalTracker::SendTower","No Output");
-				}
-				if(tower.state != 2)
-					CommonHandler.dbman.UpdateTower(tower.latitude, tower.longitude, tower.state);
-			} catch (Exception e) {
-				Log.e("SignalTracker::SendTower","Error: "+e.getMessage());
-				tower.state = 0;
-			}
-			
 			return null;
 		}
 	}

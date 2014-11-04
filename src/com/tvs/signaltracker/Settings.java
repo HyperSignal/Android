@@ -17,8 +17,21 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
- */
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 import java.net.URLEncoder;
 import java.util.Calendar;
@@ -55,7 +68,7 @@ public class Settings extends Activity {
 	private Button	saveButton,cancelButton, facebookLogin, senddata, downloadoperator;
 	private SeekBar minDistance,minTime,lightmodeTime;
 	private CheckBox WifiSend;
-	private TextView minDistanceLabel, minTimeLabel, lightmodeTimeLabel, facebookName, signals, towers;
+	private TextView minDistanceLabel, minTimeLabel, lightmodeTimeLabel, facebookName, signals;
 	private Spinner serviceMode;
 	
 	//	Variáveis temporárias
@@ -64,10 +77,9 @@ public class Settings extends Activity {
 	public static Boolean backtoSettings = false;
 	
 	//	Tasks
-	private AsyncTask<List<TowerObject>, Integer, Long> stt;
 	private AsyncTask<List<SignalObject>, Double, Long> sst;
 	private AsyncTask<Object, Integer, Long> downloadops;
-	private boolean towersent, signalsent;
+	private boolean signalsent;
 	private static Handler SettingsHandler = new Handler();
 	private boolean RUN = false;
 	private Runnable StartService = new Runnable()	{
@@ -113,7 +125,6 @@ public class Settings extends Activity {
 			lightmodeTimeLabel	=	(TextView)	findViewById(R.id.settings_lightmodeTimeLabel);
 			facebookName		=	(TextView)	findViewById(R.id.settings_facename);
 			signals				=	(TextView)	findViewById(R.id.settings_signals);
-			towers				=	(TextView)	findViewById(R.id.settings_towers);
 			
 			WifiSend			=	(CheckBox)	findViewById(R.id.settings_wifiSend);
 			
@@ -133,21 +144,9 @@ public class Settings extends Activity {
 					stopService(myIntent);
 					senddata.setText(getResources().getString(R.string.sending));
 					senddata.setClickable(false);
-					towersent = false;
 					signalsent = false;
 					if(CommonHandler.Signals != null)
-						//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						//	sst = new SendSignalTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Signals);
-						//} else {
-							sst = new SendSignalTask().execute(CommonHandler.Signals);
-						//}
-					
-					if(CommonHandler.Towers != null)
-						//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-						//	stt = new SendTowerTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Towers);
-						//} else {
-							stt = new SendTowerTask().execute(CommonHandler.Towers);
-						//}
+						sst = new SendSignalTask().execute(CommonHandler.Signals);
 
 				}
 			});
@@ -158,11 +157,7 @@ public class Settings extends Activity {
 				public void onClick(View v) {
 					downloadoperator.setText(getResources().getString(R.string.downloading));
 					downloadoperator.setClickable(false);
-					//if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					//	downloadops = new DownloadOpsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CommonHandler.Signals);
-					//} else {
-						downloadops = new DownloadOpsTask().execute(CommonHandler.Signals);
-					//}
+					downloadops = new DownloadOpsTask().execute(CommonHandler.Signals);
 				}
 			});
 			facebookLogin.setOnClickListener(new View.OnClickListener() {
@@ -292,11 +287,6 @@ public class Settings extends Activity {
 				signals.setText((CommonHandler.Signals.size()*CommonHandler.MinimumDistance/1000.0f)+" km");
 			else
 				signals.setText("0.0 km");
-				
-			if(CommonHandler.Towers != null)
-				towers.setText((CommonHandler.Towers.size()+" "+getResources().getString(R.string.towers)));
-			else
-				towers.setText("0 "+getResources().getString(R.string.towers));
 			
 			if(CommonHandler.ServiceMode > 0 & CommonHandler.ServiceMode < 5)
 				serviceMode.setSelection(CommonHandler.ServiceMode-1);
@@ -373,62 +363,9 @@ public class Settings extends Activity {
 	     protected void onPostExecute(Long result) {
 	         Toast.makeText(Settings.this, getResources().getString(R.string.senddata)+" ("+((result*CommonHandler.MinimumDistance)/1000.0f)+" km)",Toast.LENGTH_LONG).show();
 	         signalsent = true;
-	         if(towersent & signalsent)	{
+	         if(signalsent)	{
 	        	 senddata.setClickable(true);
 	        	 senddata.setText(getResources().getString(R.string.datasent));
-	        	 CommonHandler.LoadLists();
-	        	 SettingsHandler.post(StartService);
-	         }
-	     }
-	}
-	private class SendTowerTask extends AsyncTask<List<TowerObject>, Integer, Long> {
-		     protected Long doInBackground(List<TowerObject>... objectlist) {
-		         int count = objectlist[0].size();
-		         int sent = 0;
-		         for (int i = 0; i < count; i++) {
-					TowerObject tower = objectlist[0].get(i);
-					try {
-						tower.state = 1;
-						String jsondata = "{\"metodo\":\"addtorre\",\"op\":\""+CommonHandler.Operator+"\",\"lat\":"+String.valueOf(tower.latitude)+",\"lon\":"+String.valueOf(tower.longitude)+", \"uid\":\""+CommonHandler.FacebookUID+"\"}";
-						jsondata = TheUpCrypter.GenOData(jsondata);
-						JSONObject out = Utils.getODataJSONfromURL(HSAPI.baseURL+"?odata="+URLEncoder.encode(jsondata, "UTF-8"));
-						if(out != null)	{
-							if(out.getString("result").indexOf("OK") > -1)	{
-								tower.state = 2;
-								CommonHandler.dbman.deleteTower(tower.id);
-							}else{
-								Log.e("SignalTracker::SendTower","Error: "+out.getString("result"));
-								tower.state = 0;
-							}
-						}else{
-							tower.state = 0;
-							Log.e("SignalTracker::SendTower","No Output");
-						}
-						if(tower.state != 2)
-							CommonHandler.dbman.UpdateTower(tower.latitude, tower.longitude, tower.state);
-					} catch (Exception e) {
-						Log.e("SignalTracker::SendTower","Error: "+e.getMessage());
-						tower.state = 0;
-					}
-		 			if(tower.state == 2)
-		 				sent += 1;
-		             publishProgress(count - sent);
-		             // Escape early if cancel() is called
-		             if (isCancelled()) break;
-		         }
-		         return (long) sent;
-		     }
-	     protected void onProgressUpdate(Integer... progress) {
-			towers.setText(progress[0]+" "+getResources().getString(R.string.towers));
-	        // setProgressPercent(progress[0]);
-	     }
-
-	     protected void onPostExecute(Long result) {
-	         Toast.makeText(Settings.this, getResources().getString(R.string.datasent)+" ("+result+" "+getResources().getString(R.string.towers)+")", Toast.LENGTH_LONG).show();
-	         towersent = true;
-	         if(towersent & signalsent)	{
-	        	 senddata.setClickable(true);
-	        	 senddata.setText(getResources().getString(R.string.senddata));
 	        	 CommonHandler.LoadLists();
 	        	 SettingsHandler.post(StartService);
 	         }
@@ -460,10 +397,7 @@ public class Settings extends Activity {
 	@Override
 	public void onDestroy()	{
 		super.onDestroy();
-		
-		if(stt != null)
-			if(!stt.isCancelled())
-				stt.cancel(true);
+
 		if(sst != null)
 			if(!sst.isCancelled())
 				sst.cancel(true);

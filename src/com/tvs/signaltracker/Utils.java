@@ -17,8 +17,21 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
- */
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -211,77 +224,6 @@ public class Utils {
 			.replace("Oi", "OI");
 		
 		return op;
-	}
-	public static void TowerFetch(int cid2, int lac2, int mnc2, int mcc2, String APIKEY) {
-		InputStream is = null;
-		ByteArrayOutputStream bos = null;
-		byte[] data = null;
-		try {
-
-			StringBuilder uri = new StringBuilder("http://www.opencellid.org/cell");
-
-			uri.append("/get?cellid=").append(cid2);
-			uri.append("&mnc=").append(mnc2);
-			uri.append("&mcc=").append(mcc2);
-			uri.append("&lac=").append(lac2);
-			uri.append("&key=").append(APIKEY);
-
-			Log.d("SignalTracker::TowerFetch", "URL to Fetch Tower data: "+uri);
-			HttpGet request = new HttpGet(uri.toString());
-
-			HttpClient httpClient = new DefaultHttpClient();
-			HttpResponse response = httpClient.execute(request);
- 
-			int status = response.getStatusLine().getStatusCode();
-			if (status != HttpURLConnection.HTTP_OK) {
-				switch (status) {
-				case HttpURLConnection.HTTP_NO_CONTENT:
-					Log.e("SignalTracker::TowerFecth","The cell could not be found in the database");
-				case HttpURLConnection.HTTP_BAD_REQUEST:
-					Log.e("SignalTracker::TowerFecth","Check if some parameter is missing or misspelled");
-				case HttpURLConnection.HTTP_UNAUTHORIZED:
-					Log.e("SignalTracker::TowerFecth","Make sure the API key is present and valid");
-				case HttpURLConnection.HTTP_FORBIDDEN:
-					Log.e("SignalTracker::TowerFecth","You have reached the limit for the number of requests per day. The maximum number of requests per day is currently 500.");
-				case HttpURLConnection.HTTP_NOT_FOUND:
-					Log.e("SignalTracker::TowerFecth","The cell could not be found in the database");
-				default:
-					Log.e("SignalTracker::TowerFecth","HTTP response code: " + status);
-				}
-			}
-			HttpEntity entity = response.getEntity();
-			is = entity.getContent();
-			bos = new ByteArrayOutputStream();
-			byte buf[] = new byte[256];
-			while (true) {
-				int rd = is.read(buf, 0, 256);
-				if (rd == -1)
-					break;
-				bos.write(buf, 0, rd);
-			}
-			bos.flush();
-			data = bos.toByteArray();
-			if (data != null) {
-				Document dados = XMLfromString(new String(data));
-				NodeList tmp = dados.getElementsByTagName("cell");
-				double thisTowerLat = Double.parseDouble(tmp.item(0).getAttributes().getNamedItem("lat").getNodeValue());
-				double thisTowerLon = Double.parseDouble(tmp.item(0).getAttributes().getNamedItem("lon").getNodeValue());
-				CommonHandler.AddTower(thisTowerLat, thisTowerLon);
-			}
-		} catch (Exception e) {
-			Log.e("SignalTracker::TowerFecth", e.getMessage());
-		} finally {
-			try {
-				if (bos != null)
-					bos.close();
-			} catch (Exception e) {
-			}
-			try {
-				if (is != null)
-					is.close();
-			} catch (Exception e) {
-			}
-		}
 	}
 	
 	public static boolean isBetterLocation(Location location, Location currentBestLocation) {

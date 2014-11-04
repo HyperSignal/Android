@@ -8,8 +8,6 @@
     <string name="stop">Parar</string>
     <string name="config">Configurar</string>
     <string name="quit">Sair</string>
-    <string name="fb_appid">***REMOVED***</string>
-    <string name="opencell_id">3496f1ea3dca07b9608e5aeb79bf52f6</string>
     <string name="fblogin">Login no Facebook</string>
     <string name="fbmsg">Tem facebook? \n\n Autorize o SignalTracker e compartilhe suas contribuições com seus amigos!</string>
     <string name="notauthorized">Não autorizado</string>
@@ -69,7 +67,7 @@
     <string name="willdisconnectonsave">Será desconectado ao salvar.</string>
     <string name="stservicestopped">Serviço do SignalTracker parado!</string>
     <string name="stservicestarted">Serviço do SignalTracker iniciado!</string>
-    <string name="barnotice">Pontos(%1$s km) Torres(%2$s) Sats(%3$s/%4$s)</string>
+    <string name="barnotice">Pontos(%1$s km) Sats(%3$s/%4$s)</string>
     <string name="notasktodo">Nenhuma tarefa para fazer.</string>
     <string name="gpsdisabled">GPS Desativado, por favor ative-o!</string>
     <string name="gpsenabled">GPS Ativado!</string>

@@ -32,27 +32,16 @@ package com.tvs.signaltracker;
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+import android.content.Context;
 
+public class SignalTracker extends android.app.Application {
+    private static SignalTracker instance;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+    public SignalTracker() {
+    	instance = this;
+    }
 
-public class ConfigDone extends Activity {
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.configdone);
-		Button startuse	=	(Button) findViewById(R.id.startusing);
-		startuse.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), MainScreen.class);
-                startActivity(intent);
-                CommonHandler.Configured = true;
-			}
-		});
-	}
+    public static Context getContext() {
+    	return instance;
+    }
 }

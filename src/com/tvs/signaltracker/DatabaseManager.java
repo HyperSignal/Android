@@ -17,6 +17,20 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -36,14 +50,12 @@ import android.util.Log;
 
 public class DatabaseManager {
 	private static final String DATABASE_NAME = "signaltracker.db";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 	
 	private Context context;
 	private SQLiteDatabase db;
 	private SQLiteStatement insSignal;
-	private SQLiteStatement insTower;
 	private static final String INSERTSIGNAL = "insert into signals(latitude,longitude,sinal,state) values (?,?,?,0)";
-	private static final String INSERTTOWER = "insert into towers(latitude,longitude,state) values (?,?,0)";
 	
 	private List<DBUsers> users;
 	
@@ -56,7 +68,6 @@ public class DatabaseManager {
 	    OpenHelper openHelper = new OpenHelper(this.context);
 	    this.db = openHelper.getWritableDatabase();
 	    this.insSignal = this.db.compileStatement(INSERTSIGNAL);
-	    this.insTower = this.db.compileStatement(INSERTTOWER);
 	    this.users = new ArrayList<DBUsers>();
 	}
 	
@@ -110,19 +121,7 @@ public class DatabaseManager {
 		this.insSignal.bindLong(3, sinal);
 		return this.insSignal.executeInsert();
 	}
-	
-	/**
-	 * 
-	 * @param latitude		The Latitude of Tower
-	 * @param longitude		The Longitude of Tower
-	 * @return	The Row ID of inserted Tower
-	 */
-	public long insertTower (Double latitude, Double longitude) {
-		this.insTower.bindDouble(1, latitude);
-		this.insTower.bindDouble(2, longitude);
-		return this.insTower.executeInsert();
-	}
-	
+
 	/**
 	 * 	Do a clean on Towers and Signals table.
 	 * 	This will erase all tower and signal data
@@ -130,7 +129,6 @@ public class DatabaseManager {
 	 */
 	public void CleanTowerSignal() {
 		this.db.delete("signals", null, null);
-		this.db.delete("towers", null, null);
 	}
 	
 	/**
@@ -148,7 +146,6 @@ public class DatabaseManager {
 	 */
 	public void CleanAll()	{
 		this.db.delete("signals", null, null);
-		this.db.delete("towers", null, null);
 		this.db.delete("preferences", null, null);		
 	}
 	
@@ -180,7 +177,6 @@ public class DatabaseManager {
 		    OpenHelper openHelper = new OpenHelper(this.context);
 		    this.db = openHelper.getWritableDatabase();
 		    this.insSignal = this.db.compileStatement(INSERTSIGNAL);
-		    this.insTower = this.db.compileStatement(INSERTTOWER);
 		    if(this.users == null)
 		    	this.users = new ArrayList<DBUsers>();
 		}
@@ -261,29 +257,6 @@ public class DatabaseManager {
 		}
 		return table;
 	}
-	
-	/**
-	 * Get the list of towers stored in database
-	 * @return	List of TowerObject
-	 */
-	public List<TowerObject> getTowers() {
-		List<TowerObject> table = new ArrayList<TowerObject>();
-		Cursor cursor = this.db.query("towers", new String[] {"latitude", "longitude", "state", "id"}, null, null, null, null, null, null);
-		if(cursor.moveToFirst()) {
-			do {
-				if(cursor.getShort(2) != 2)	{
-					TowerObject tmp = new TowerObject(cursor.getDouble(0),cursor.getDouble(1),(short) 0);
-					tmp.id = cursor.getInt(3);
-					table.add(tmp);
-				}
-					
-			}while(cursor.moveToNext());
-		}
-		if(cursor != null && !cursor.isClosed()) {
-			cursor.close();
-		}
-		return table;
-	}	
 
 	/**
 	 * Sets a preference value on database
@@ -419,7 +392,6 @@ public class DatabaseManager {
 	    public void onCreate(SQLiteDatabase db) { 
 	    	Log.i("Database Manager", "Creating base table");
 	    	db.execSQL("CREATE TABLE signals (id INTEGER PRIMARY KEY, latitude DOUBLE, longitude DOUBLE, sinal INTEGER, state INTEGER)");
-	    	db.execSQL("CREATE TABLE towers (id INTEGER PRIMARY KEY, latitude DOUBLE, longitude DOUBLE, state INTEGER)");
 	    	db.execSQL("CREATE TABLE preferences (prefkey TEXT PRIMARY KEY, prefval TEXT)");
 	    	db.execSQL("CREATE TABLE operators (mcc INTEGER NOT NULL , mnc INTEGER NOT NULL, name TEXT, fullname TEXT, PRIMARY KEY(mcc,mnc))");
 	    }
@@ -430,9 +402,8 @@ public class DatabaseManager {
 	     * @param towertable	The List of TowerObject
 	     * @param preferences	The HashMap of preferences
 	     */
-	    private void FillNewDB(SQLiteDatabase db, List<SignalObject> sigtable, List<TowerObject> towertable, HashMap<String, String> preferences)	{
+	    private void FillNewDB(SQLiteDatabase db, List<SignalObject> sigtable, HashMap<String, String> preferences)	{
 	    	SQLiteStatement insSignal = db.compileStatement(INSERTSIGNAL);
-	    	SQLiteStatement insTower = db.compileStatement(INSERTTOWER);
 			Iterator<Entry<String, String>> it = preferences.entrySet().iterator();
 			while(it.hasNext())	{
 		        HashMap.Entry<String, String> pairs = (HashMap.Entry<String, String>)it.next();
@@ -452,15 +423,7 @@ public class DatabaseManager {
 				Log.i("Database Manager", "Inserting Signal: "+sig.toString());
 				insSignal.executeInsert();
 			}
-			for(int i=0;i<towertable.size();i++)	{
-				TowerObject sig = towertable.get(i);
-				insTower.bindDouble(1, sig.latitude);
-				insTower.bindDouble(2, sig.longitude);
-				Log.i("Database Manager", "Inserting Tower: "+sig.toString());
-				insTower.executeInsert();
-			}
 			sigtable = null;
-			towertable = null;
 			preferences = null;
 	    }
 	    @Override
@@ -468,7 +431,6 @@ public class DatabaseManager {
 	       Log.w("Database Manager", "Upgrading table.");
 	       
 			List<SignalObject> sigtable = new ArrayList<SignalObject>();
-			List<TowerObject> towertable = new ArrayList<TowerObject>();
 			Log.i("Database Manager", "Loading Signals");
 			Cursor cursor = db.query("signals", new String[] { "latitude", "longitude", "sinal", "state", "id"}, null, null, null, null, null, null);
 			if(cursor.moveToFirst()) {
@@ -477,20 +439,6 @@ public class DatabaseManager {
 						SignalObject tmp = new SignalObject(cursor.getDouble(0),cursor.getDouble(1),(short) cursor.getShort(2),(short) 0);
 						tmp.id = cursor.getInt(4);
 						sigtable.add(tmp);
-					}
-				}while(cursor.moveToNext());
-			}
-			if(cursor != null && !cursor.isClosed()) {
-				cursor.close();
-			}
-			Log.i("Database Manager", "Loading Towers");
-			cursor = db.query("towers", new String[] {"latitude", "longitude", "state", "id"}, null, null, null, null, null, null);
-			if(cursor.moveToFirst()) {
-				do {
-					if(cursor.getShort(2) != 2)	{
-						TowerObject tmp = new TowerObject(cursor.getDouble(0),cursor.getDouble(1),(short) 0);
-						tmp.id = cursor.getInt(3);
-						towertable.add(tmp);
 					}
 				}while(cursor.moveToNext());
 			}
@@ -515,9 +463,8 @@ public class DatabaseManager {
 	       db.execSQL("DROP TABLE IF EXISTS preferences");
 	       db.execSQL("DROP TABLE IF EXISTS operators");
 	       onCreate(db);
-	       FillNewDB(db,sigtable,towertable,preferences);
+	       FillNewDB(db, sigtable, preferences);
 	       sigtable = null;
-	       towertable = null;
 	       preferences = null;
 	    }
 	 }	

@@ -17,6 +17,20 @@ package com.tvs.signaltracker;
  * 
  * Created by: Lucas Teske from Teske Virtual System
  * Package: com.tvs.signaltracker
+ * 	Signal Mapping Project
+    Copyright (C) 2012  Lucas Teske
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -64,7 +78,6 @@ import android.widget.ToggleButton;
 public class MainScreen  extends FragmentActivity {	
 	//	Callbacks
 	public static STCallBack SignalCallBack;
-	public static STCallBack TowerCallBack;
 	
 	//	Localização
 	public static Location lastLocation;
@@ -75,7 +88,6 @@ public class MainScreen  extends FragmentActivity {
 	public TextView collectedData, connectionInfo, runMode, signalPercent;
 	public ToggleButton tileView, controlLock;
 	public static List<GroundOverlay> signals;
-	public static List<GroundOverlay> towers;
 	public TileOverlay STOverlay;
 	public AsyncTask<String, Integer, Long> LoadToMapTask;
 
@@ -89,7 +101,7 @@ public class MainScreen  extends FragmentActivity {
 	private static Handler MainScreenHandler = new Handler()	{
 		@Override
 		public void handleMessage(Message msg)	{
-			if(map != null && signals != null && towers != null)	{
+			if(map != null && signals != null)	{
 				switch(msg.what)	{
 					case 0:	//	AddSignal
 						int lvl	=	FinalVars.SignalLevels[msg.getData().getShort("signal")];
@@ -104,16 +116,7 @@ public class MainScreen  extends FragmentActivity {
 						Log.i("SignalTracker::MainScreenHandler","Added Signal "+sig);
 						break;
 					case 1:	//	AddTower
-						GroundOverlay tow = map.addGroundOverlay(new GroundOverlayOptions()
-				        .image(BitmapDescriptorFactory.fromResource(R.drawable.tower_75x75)).anchor(0.5f, 0.5f)
-				        .position(new LatLng(msg.getData().getDouble("lat"), msg.getData().getDouble("lon")), 100f)); 
-						towers.add(tow);
-						if(towers.size() > CommonHandler.MaxMapContent)	{
-							towers.get(0).remove();
-							towers.remove(0);
-						}
-						Log.i("SignalTracker::MainScreenHandler","Added Tower "+tow);
-						break;
+						Log.w("SignalTracker::MainScreenHandler","Adding tower is deprecated. Ignoring");
 				}
 			}else{
 				Log.i("SignalTracker::MainScreenHandler","Variables not initialized, delaying in 2 seconds the message.");
@@ -128,8 +131,15 @@ public class MainScreen  extends FragmentActivity {
 
 		@Override
 		public void run() {
-			if(CommonHandler.Signals != null & CommonHandler.Towers != null)
-				collectedData.setText(getResources().getString(R.string.signals)+": "+(CommonHandler.Signals.size()*CommonHandler.MinimumDistance/1000.0f)+" km "+getResources().getString(R.string.towers)+": "+CommonHandler.Towers.size()+" - ("+CommonHandler.Operator+")");
+			if(CommonHandler.Signals != null)
+				collectedData.setText(
+						getResources().getString(R.string.signals)+
+						": "+
+						(CommonHandler.Signals.size()*CommonHandler.MinimumDistance/1000.0f)+
+						" km - ("+
+						CommonHandler.Operator+
+						")"
+						);
 			if(controlLocked)	{
 				if(lastLocation != null )	{
 					if(CommonHandler.GPSLocation != null)
@@ -234,10 +244,9 @@ public class MainScreen  extends FragmentActivity {
 	@SuppressLint("NewApi")
 	private void setUpMap() {
 		signals = new ArrayList<GroundOverlay>();
-		towers = new ArrayList<GroundOverlay>();
 
 		try {
-	    		if(CommonHandler.Signals == null || CommonHandler.Towers == null)	{
+	    		if(CommonHandler.Signals == null )	{
 	                Intent MainMenuIntent  = new Intent().setClass(MainScreen.this, SplashScreen.class);
 	                startActivity(MainMenuIntent);
 	                finish();
@@ -282,8 +291,7 @@ public class MainScreen  extends FragmentActivity {
 		@Override
 		protected Long doInBackground(String... params) {
             int minSig = (CommonHandler.	Signals.size()-CommonHandler.MaxMapContent)>-1?CommonHandler.Signals.size()-CommonHandler.MaxMapContent:0;
-            int minTow = (CommonHandler.Towers.size()-CommonHandler.MaxMapContent)>-1?CommonHandler.Towers.size()-CommonHandler.MaxMapContent:0;
-    		for(int i=CommonHandler.Signals.size()-1;i>minSig;i--)	{
+           for(int i=CommonHandler.Signals.size()-1;i>minSig;i--)	{
     			SignalObject sig = CommonHandler.Signals.get(i);
     			Bundle sigdata = new Bundle();
     			Message sigmsg = new Message();
@@ -294,17 +302,6 @@ public class MainScreen  extends FragmentActivity {
     			sigmsg.setData(sigdata);
     			if(!MainScreenHandler.sendMessage(sigmsg))
     				Log.i("SignalTracker::MainScreen","Failed to put point on map");
-    		}
-    		for(int i=CommonHandler.Towers.size()-1;i>minTow;i--)	{
-    			TowerObject sig = CommonHandler.Towers.get(i);
-    			Bundle sigdata = new Bundle();
-    			Message sigmsg = new Message();
-    			sigdata.putDouble("lat", sig.latitude);
-    			sigdata.putDouble("lon", sig.longitude); 
-    			sigmsg.what = 1;
-    			sigmsg.setData(sigdata);
-    			if(!MainScreenHandler.sendMessage(sigmsg)) 
-    				Log.i("SignalTracker::MainScreen","Failed to put tower on map");
     		}
 			
 			return null;
@@ -335,34 +332,11 @@ public class MainScreen  extends FragmentActivity {
 				
 			};
 			SignalCallBack.from = "MainScreen";
-			TowerCallBack = new STCallBack()	{
 
-				@Override
-				public void Call(Object argument) {
-					TowerObject sig = (TowerObject) argument;
-					Bundle data = new Bundle();
-					data.putDouble("lat", sig.latitude);
-					data.putDouble("lon", sig.longitude);
-					Message msg = new Message();
-					msg.setData(data);
-					msg.what = 1;
-					if(!MainScreenHandler.sendMessage(msg))	{
-		    				Log.i("SignalTracker::MainScreen","Failed to put tower on map. Delaying 2s");
-		    				MainScreenHandler.sendMessageDelayed(msg, 2000);
-					}
-				}
-				
-			};
-			TowerCallBack.from = "MainScreen";
-			CommonHandler.AddTowerCallback(TowerCallBack);
 			CommonHandler.AddSignalCallback(SignalCallBack);
 			if(CommonHandler.Signals != null)	{
 				for(int i=0;i<CommonHandler.Signals.size();i++)
 					SignalCallBack.Call(CommonHandler.Signals.get(i));
-			}
-			if(CommonHandler.Towers != null)	{
-				for(int i=0;i<CommonHandler.Towers.size();i++)
-					TowerCallBack.Call(CommonHandler.Towers.get(i));
 			}
 		}
 		MainScreenHandler.postDelayed(UpdateUI, 100);
@@ -375,16 +349,12 @@ public class MainScreen  extends FragmentActivity {
 		MainScreenHandler.removeMessages(1);
 		
 		List<GroundOverlay> st = signals;
-		List<GroundOverlay> tow = towers;
 		
 
-		int lensig = signals.size(),
-			lentow = towers.size();
+		int lensig = signals.size();
 		
 		for(int i=0;i<lensig;i++)	
 			st.get(i).remove();
-		for(int i=0;i<lentow;i++)	
-			tow.get(i).remove();
 	}
     @Override
     protected void onResume() {
