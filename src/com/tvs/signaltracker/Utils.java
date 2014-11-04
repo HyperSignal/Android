@@ -301,22 +301,4 @@ public class Utils {
 		return doc;
 
 	}
-	public static class	TowerFetchTask	extends AsyncTask<Object, Object, Object>	{
-		@Override
-		protected Object doInBackground(Object... params) {
-			String APIKEY 	= 	(String) params[0];
-			int[]	data	=	(int[]) params[1];
-			int cid = data[0];
-			int lac = data[1];
-			int mcc = data[2];
-			int mnc = data[3];
-			try{
-				TowerFetch(cid,lac,mnc,mcc,APIKEY);
-			}catch(Exception e)	{
-				Log.e("SignalTracker::TowerFetchTask","Failed to fetch tower data: "+e.getMessage());
-			}
-			return null;
-		}
-		
-	}
 }

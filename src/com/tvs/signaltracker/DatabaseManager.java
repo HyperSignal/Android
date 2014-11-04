@@ -101,14 +101,6 @@ public class DatabaseManager {
 	}
 	
 	/**
-	 * Deletes a Tower from database with a ID
-	 * @param id	The Database ID of Tower
-	 */
-	public void deleteTower(int id)	{ 
-		this.db.delete("towers", "id=?", new String[] {Integer.toString(id) } );
-	}
-	
-	/**
 	 * 
 	 * @param latitude		The Latitude of Signal
 	 * @param longitude		The Longitude of Signal
@@ -123,8 +115,8 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * 	Do a clean on Towers and Signals table.
-	 * 	This will erase all tower and signal data
+	 * 	Do a clean on Signals table.
+	 * 	This will erase all signal data
 	 * 	stored on device.
 	 */
 	public void CleanTowerSignal() {
@@ -201,24 +193,6 @@ public class DatabaseManager {
 			return this.db.update("signals", values, "latitude=? and longitude=? and sinal=?", new String[] { Double.toString(lat), Double.toString(lon), Integer.toString(signal) });	
 		}
 	}
-	/**
-	 * Updates a tower data on database.
-	 * This will delete the tower from database 
-	 * if <b>state == 2</b>, or update all data if <b>signal != 2</b>
-	 * @param lat	Latitude of Tower
-	 * @param lon	Longitude of Tower
-	 * @param state	State of Tower
-	 * @return	Number of rows affected (if all right, 1, else 0)
-	 */
-	public long UpdateTower(double lat, double lon, short state)	{
-		if(state == 2)	{
-			return this.db.delete("towers", "latitude=? and longitude=? ", new String[] { Double.toString(lat), Double.toString(lon)});
-		}else{
-			ContentValues values = new ContentValues();
-			values.put("state", state);
-			return this.db.update("signals", values, "latitude=? and longitude=?", new String[] { Double.toString(lat), Double.toString(lon) });	
-		}
-	}
 	
 	/**
 	 * 	Performes a cleanup for already sent signals
@@ -226,14 +200,6 @@ public class DatabaseManager {
 	 */
 	public void CleanDoneSignals()	{
 		this.db.delete("signals", "state=?", new String[] { "2" });
-	}
-	
-	/**
-	 * 	Performes a cleanup for already sent towers
-	 * 	that still remains on database.
-	 */
-	public void CleanDoneTowers()	{
-		this.db.delete("towers", "state=?", new String[] { "2" });
 	}
 	
 	/**
@@ -399,7 +365,6 @@ public class DatabaseManager {
 	     * Fills the new database with data from the old database.
 	     * @param db	The Database
 	     * @param sigtable	The List of SignalObject
-	     * @param towertable	The List of TowerObject
 	     * @param preferences	The HashMap of preferences
 	     */
 	    private void FillNewDB(SQLiteDatabase db, List<SignalObject> sigtable, HashMap<String, String> preferences)	{

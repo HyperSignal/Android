@@ -128,8 +128,6 @@ public class CommonHandler {
 		if(dbman != null)	{
 			Log.i("SignalTracker::LoadLists","Cleaning sent signals.");
 			dbman.CleanDoneSignals();
-			Log.i("SignalTracker::LoadLists","Cleaning sent towers.");
-			dbman.CleanDoneTowers();
 			Signals = dbman.getSignals();
 		}else
 			Log.e("SignalTracker::LoadLists","DatabaseManager is null! ");
