@@ -67,7 +67,7 @@
     <string name="willdisconnectonsave">Será desconectado ao salvar.</string>
     <string name="stservicestopped">Serviço do SignalTracker parado!</string>
     <string name="stservicestarted">Serviço do SignalTracker iniciado!</string>
-    <string name="barnotice">Pontos(%1$s km) Sats(%3$s/%4$s)</string>
+    <string name="barnotice">Pontos(%1$s km) Sats(%2$s/%3$s)</string>
     <string name="notasktodo">Nenhuma tarefa para fazer.</string>
     <string name="gpsdisabled">GPS Desativado, por favor ative-o!</string>
     <string name="gpsenabled">GPS Ativado!</string>

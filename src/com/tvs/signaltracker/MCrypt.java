@@ -48,11 +48,11 @@ import android.util.Log;
 
 public class MCrypt {
 
-	private String iv = "***REMOVED***";
+	private String iv = "";
 	private IvParameterSpec ivspec;
 	private SecretKeySpec keyspec;
 	private Cipher cipher;
-	private String SecretKey = "***REMOVED***";
+	private String SecretKey = "";
 
 	public MCrypt() {
 		

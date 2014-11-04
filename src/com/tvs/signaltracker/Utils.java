@@ -34,10 +34,8 @@ package com.tvs.signaltracker;
  */
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.security.KeyStore;
 
 import org.apache.http.HttpEntity;
@@ -65,12 +63,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.location.Location;
-import android.os.AsyncTask;
 import android.util.Log;
 
 public class Utils {
