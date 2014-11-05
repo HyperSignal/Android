@@ -47,10 +47,10 @@ import android.util.Log;
 
 public class CommonHandler {
 	/*	Constantes	*/
-	public static final String[] FB_permissions =	{	"publish_stream"	};	//	Permissões padrões do Facebook 
+	public static final String[] FB_permissions =	{	"publish_actions"	};	//	Permissões padrões do Facebook 
 													 
-	public static final String[] FB_read_perm	=	{	"email",				//	Permissões de Leitura no Face
-														"photo_upload"	};
+	public static final String[] FB_read_perm	=	{	"email"};				//	Permissões de Leitura no Face
+													
 
 	public static final int	MaxMapContent		=	40;							//	
 	

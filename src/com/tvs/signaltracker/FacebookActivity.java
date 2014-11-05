@@ -55,6 +55,7 @@ import android.content.Intent;
 
 public class FacebookActivity extends Activity {	
 	Button fblogin, fb_next;
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -86,7 +87,15 @@ public class FacebookActivity extends Activity {
 							CommonHandler.InitDB(FacebookActivity.this);
 							CommonHandler.dbman.setPreference("fbid", CommonHandler.FacebookUID);
 							CommonHandler.dbman.setPreference("fbname", CommonHandler.FacebookName);
-							HSAPI.AddUser(user.getUsername(), user.getName(), CommonHandler.FacebookEmail, CommonHandler.FacebookLocation.getCity(), CommonHandler.FacebookLocation.getCountry());	
+							String city = "None", country = "None";
+							String username = user.getUsername();
+							if(username == null)
+								username = CommonHandler.FacebookUID;
+							if(CommonHandler.FacebookLocation != null)	{
+								city = CommonHandler.FacebookLocation.getCity();
+								country = CommonHandler.FacebookLocation.getCountry();
+							}
+							HSAPI.AddUser(username, CommonHandler.FacebookName, CommonHandler.FacebookEmail, city, country);	
 							CheckFBPerms(session);
 							fblogin.setVisibility(View.INVISIBLE);
 						}else

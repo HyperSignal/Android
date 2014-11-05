@@ -137,7 +137,7 @@ public class Utils {
     		try{
         			result = TheUpCrypter.DecodeOData(result);
     	        	jArray = new JSONObject(result);
-    		}catch(JSONException e){
+    		}catch(Exception e){
     			Log.e("SignalTracker::getJSONfromURL", "Error parsing data "+e.toString());
     			Log.e("SignalTracker::getJSONfromURL", "Site output: "+result);
     			Log.e("SignalTracker::getJSONfromURL", "URL: "+url);
